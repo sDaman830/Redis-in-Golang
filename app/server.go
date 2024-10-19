@@ -19,21 +19,28 @@ func main() {
 	}
 	defer l.Close() // Close the listener when the application exits
 
-	// Accept the connection from the client
-	conn, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection:", err.Error())
-		os.Exit(1)
+	for {
+
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection:", err.Error())
+			os.Exit(1)
+		}
+		go handleConnection(conn)
 	}
+
+}
+
+func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	// Hardcoded response for the PING command: +PONG\r\n
 	response := "+PONG\r\n"
 
-	// Send the response back to the client
-	_, err = conn.Write([]byte(response))
+	_, err := conn.Write([]byte(response))
 	if err != nil {
 		fmt.Println("Error writing to connection:", err.Error())
-		os.Exit(1)
+		return
 	}
+
+	fmt.Println("Response sent to client")
 }
